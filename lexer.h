@@ -30,9 +30,9 @@ public:
     static std::string token_map(TokenType expect_type); 
 protected:
     char read_char(); 
+    void back_char(char ch); 
 protected:
     bool is_file_; //file name input or calc string input
-    bool is_read_; //if already read next char
     FILE *fp_;
     std::string input_; 
     int input_cur_;

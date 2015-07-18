@@ -1,10 +1,15 @@
 #include <stdio.h>
 
-#include "node.h"
 #include "parser.h"
 
+void test_parser() {
+    char * code = "x = 1 + 2;";
+    Parser parser(code, false);
+    Node *syntax_tree = parser.parse();
+    assert(syntax_tree != NULL);
+}
+
 int main() {
-	Node *node = parse();
-	assert(NODE_STMTS == node->type()); 
+    test_parser();
 	return 0;
 }

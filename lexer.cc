@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 
+#include "utils.h"
 #include "lexer.h"
 
 std::string Lexer::token_map(TokenType expect_type) {
@@ -34,14 +35,22 @@ char Lexer::read_char() {
     }
 }
 
+void Lexer::back_char(char ch) {
+    if (is_file_) {
+        assert(fp_ != NULL);
+        ungetc(ch, fp_);
+    } else {
+        input_cur_--; 
+    }
+}
+
 TokenType Lexer::get_token() {
-    char ch;
-    if (!is_read_) ch = read_char();
+    char ch = read_char();
     //comment
     if ('#' == ch) {
         do {
             ch = read_char();
-        } while ( ch != '\n');
+        } while ( ch != '\n' && ch != EOF);
     }
     //black tab
     while (' ' == ch || '\t' == ch || '\n' == ch) ch = read_char();
@@ -54,8 +63,8 @@ TokenType Lexer::get_token() {
             ss << ch;
             ch =  read_char();
         } while (isalpha(ch));
+        back_char(ch); //read one more, back it
         token_ = ss.str();
-        is_read_ = true;
         return TOKEN_ID;
     }
 	//number
@@ -66,23 +75,23 @@ TokenType Lexer::get_token() {
 			ch = read_char();
 		} while (isdigit(ch));//bug 
 		token_ = num_str;
-        is_read_ = true;
+        back_char(ch);
 		return TOKEN_NUMBER;
 	}
 	//g_token = ch;
 	//other
 	switch(ch) {
-		case '=': is_read_ = false; return TOKEN_ASSIGN;
-		case '+': is_read_ = false;	return TOKEN_ADD;
-		case '-': is_read_ = false;	return TOKEN_MINUS;
-		case '*': is_read_ = false;	return TOKEN_MULTI;
-		case '/': is_read_ = false;	return TOKEN_DEVI;
-		case '(': is_read_ = false;	return TOKEN_LEFT_PAREN;
-		case ')': is_read_ = false;	return TOKEN_RIGHT_PAREN;
-		case ';': is_read_ = false;	return TOKEN_SEMICOLON;
+		case '=':   return TOKEN_ASSIGN;
+		case '+': 	return TOKEN_ADD;
+		case '-': 	return TOKEN_MINUS;
+		case '*': 	return TOKEN_MULTI;
+		case '/': 	return TOKEN_DEVI;
+		case '(': 	return TOKEN_LEFT_PAREN;
+		case ')': 	return TOKEN_RIGHT_PAREN;
+		case ';': 	return TOKEN_SEMICOLON;
 	}
-	printf("unknown char %c\n", ch);
-	exit(-1);
+	//unknown char 
+    ERROR << "lex error: unkonwn char " << ch;
 	return TOKEN_UNKNOWN;
 }
 

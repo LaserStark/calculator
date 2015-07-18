@@ -1,51 +1,34 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <string>
 
-#include <iostream>
+#include "parser.h"
 
-#include "lexer.h"
-#include "node.h"
 
-void match(TokenType expect_type) {
-	if (g_token_type == expect_type) {
-		//printf("%s\t%s\n", token_map(expect_type).c_str(), g_token.c_str());
-		g_token_type = get_token();
+void Parser::match(TokenType expect_type) {
+	if (next_token_ == expect_type) {
+        LOG << next_token_ << "\t" << lexer_.token_map(next_token_) << "\t" << lexer_.token();
+		next_token_ = lexer_.get_token();
 	}
     else {
-		printf("syntax error: expected %s, but get %s\n", token_map(expect_type).c_str(), g_token.c_str());
-		exit(-1);
+        ERROR << "syntax error: expected " << lexer_.token_map(expect_type) << ", but get " << lexer_.token();
     }
 }
 
-void syntax_error(std::string error_msg) {
-	printf("%s\n", error_msg.c_str());
-	exit(-1);
-}
-
-
-Node *expr(); 
-Node *term(); 
-Node *factor();
-Node *assign();
-Node *statements();
-Node *parse();
-
-Node *parse() {
+Node * Parser::parse() {
+	next_token_ = lexer_.get_token();	
 	return statements(); 
 }
 
-Node *statements() {
-	g_token_type = get_token();	
+Node * Parser::statements() {
 	StmtsNode *node = new StmtsNode;	
-    while (g_token_type != TOKEN_EOI) {
+    while (next_token_ != TOKEN_EOI) {
         Node *n = assign();
 		node->add_node(n);
     }
-	return static_cast<Node *>(node);
+	return dynamic_cast<Node *>(node);
 }
 
-Node *assign() {
-	std::string id = g_token;
+Node * Parser::assign() {
+	std::string id = lexer_.token();
     match(TOKEN_ID);
     Node *id_node = new IdNode(id); 
 	//add to symbol_table
@@ -55,10 +38,10 @@ Node *assign() {
     return new AssignNode(id_node, expr_node);
 }
 
-Node *expr() {
+Node * Parser::expr() {
     Node *node = term();
-    while (TOKEN_ADD == g_token_type || TOKEN_MINUS == g_token_type) {
-        TokenType op = g_token_type;
+    while (TOKEN_ADD == next_token_ || TOKEN_MINUS == next_token_) {
+        TokenType op = next_token_;
 		match(op);
         Node *node2 = term();
         node = new OpNode(op, node, node2);
@@ -66,10 +49,10 @@ Node *expr() {
     return node;
 }
 
-Node *term() {
+Node * Parser::term() {
     Node *node = factor();
-    while (TOKEN_MULTI == g_token_type || TOKEN_DEVI == g_token_type) {
-        TokenType op = g_token_type;
+    while (TOKEN_MULTI == next_token_ || TOKEN_DEVI == next_token_) {
+        TokenType op = next_token_;
 		match(op);
         Node *node2 = factor();
         node = new OpNode(op, node, node2);
@@ -77,19 +60,19 @@ Node *term() {
     return node;
 }
 
-Node *factor() {
+Node * Parser::factor() {
 	Node * node;
-	switch(g_token_type) {
+	switch(next_token_) {
 		case TOKEN_NUMBER:
 			{
-				int val = atoi(g_token.c_str());
+				int val = atoi(lexer_.token().c_str());
 				match(TOKEN_NUMBER);
 				node = new NumberNode(val);
 			}
 			break;
 		case TOKEN_ID:
 			{
-				std::string id = g_token;
+				std::string id = lexer_.token();
     			match(TOKEN_ID);
     			node = new IdNode(id); 
 			}
@@ -100,9 +83,7 @@ Node *factor() {
  	   		match(TOKEN_RIGHT_PAREN);
 			break;
 		default:
-			std::stringstream ss;
-			ss << "syntax error: unexpected token " << g_token;
-			syntax_error(ss.str());
+            ERROR  << "syntax error: unexpected token " << lexer_.token();
 			break;
 	}
 	return node;

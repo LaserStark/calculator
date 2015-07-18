@@ -16,8 +16,8 @@ symbol_table_test: symbol_table_test.cc $(OBJ)
 	$(CXX) -o $@ $< $(OBJ) $(CXXFLAGS) 
 
 
-lexer.o: lexer.h
-parser.o: lexer.h node.h symbol_table.h
+lexer.o: lexer.h utils.h
+parser.o: lexer.h utils.h node.h 
 
 .PHONY: clean
 clean:

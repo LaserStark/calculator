@@ -2,9 +2,15 @@
 #include <assert.h>
 
 #include "lexer.h"
+#include "utils.h"
 
 void test_lexer() {
-    Lexer lexer("#this is comment;\n aa * (111 + 255);", false);
+    char * code = "#this is comment;\n"
+                  "x = aa * (111 + 255);";
+    LOG << code;
+    Lexer lexer(code, false);
+    assert(lexer.get_token() == TOKEN_ID);
+    assert(lexer.get_token() == TOKEN_ASSIGN);
     assert(lexer.get_token() == TOKEN_ID);
     assert(lexer.get_token() == TOKEN_MULTI);
     assert(lexer.get_token() == TOKEN_LEFT_PAREN);
@@ -13,7 +19,8 @@ void test_lexer() {
     assert(lexer.get_token() == TOKEN_NUMBER);
     assert(lexer.get_token() == TOKEN_RIGHT_PAREN);
     assert(lexer.get_token() == TOKEN_SEMICOLON);
-    printf("lexer test success\n");
+    assert(lexer.get_token() == TOKEN_EOI);
+    LOG << "lexer test success";
 }
 
 
