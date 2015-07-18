@@ -15,7 +15,7 @@ typedef enum {
 
 class Lexer {
 public:
-    Lexer(char *input, bool is_file = true): is_file_(is_file), input_cur_(0), is_read_(false) {
+    Lexer(char *input, bool is_file = true): is_file_(is_file), input_cur_(0) {
         if (is_file_) {
             fp_ = fopen(input, "r");
         } else {
