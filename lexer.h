@@ -15,7 +15,7 @@ typedef enum {
 
 class Lexer {
 public:
-    Lexer(char *input, bool is_file = true): is_file_(is_file), input_cur_(0) {
+    Lexer(const char *input, bool is_file = true): is_file_(is_file), input_cur_(0) {
         if (is_file_) {
             fp_ = fopen(input, "r");
         } else {
@@ -35,7 +35,7 @@ protected:
     bool is_file_; //file name input or calc string input
     FILE *fp_;
     std::string input_; 
-    int input_cur_;
+    size_t input_cur_;
     TokenType token_type_;
     std::string token_;
 };

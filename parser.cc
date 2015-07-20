@@ -5,7 +5,7 @@
 
 void Parser::match(TokenType expect_type) {
 	if (next_token_ == expect_type) {
-        LOG << next_token_ << "\t" << lexer_.token_map(next_token_) << "\t" << lexer_.token();
+        //LOG << next_token_ << "\t" << lexer_.token_map(next_token_) << "\t" << lexer_.token();
 		next_token_ = lexer_.get_token();
 	}
     else {

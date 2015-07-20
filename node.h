@@ -40,13 +40,14 @@ protected:
 class OpNode: public Node {
 public:
     OpNode(TokenType op, Node *left, Node *right): Node(NODE_OP), 
-		op_(op), left_(left), right_(right) {
-		assert(TOKEN_ADD == op_ || TOKEN_MINUS == op_ || TOKEN_MULTI == op_ || TOKEN_DEVI == op_);
+		op_type_(op), left_(left), right_(right) {
+		assert(TOKEN_ADD == op_type_ || TOKEN_MINUS == op_type_ || TOKEN_MULTI == op_type_ || TOKEN_DEVI == op_type_);
     }
+    TokenType op_type() { return op_type_; }
 	Node *left() { return left_; }
 	Node *right() { return right_; }
 protected:
-	TokenType op_;
+	TokenType op_type_;
     Node *left_, *right_;
 };
 
@@ -62,7 +63,7 @@ protected:
 class AssignNode: public Node {
 public:
     AssignNode(Node *id, Node *e): Node(NODE_ASSIGN), id_node_(id), expr_node_(e)  {}
-    Node *id_node() { return id_node_; }
+    IdNode *id_node() { return dynamic_cast<IdNode *>(id_node_); }
     Node *expr_node() { return expr_node_; }
 protected:
     Node *id_node_;

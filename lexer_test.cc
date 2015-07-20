@@ -5,9 +5,9 @@
 #include "utils.h"
 
 void test_lexer() {
-    char * code = "#this is comment;\n"
+    const char * code = "#this is comment;\n"
                   "x = aa * (111 + 255);";
-    LOG << code;
+    //LOG << code;
     Lexer lexer(code, false);
     assert(lexer.get_token() == TOKEN_ID);
     assert(lexer.get_token() == TOKEN_ASSIGN);

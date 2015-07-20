@@ -3,8 +3,14 @@
 #include "calculator.h"
 
 int main() {
-	Node *node = parse();
-	Calculator calc(node);
-	calc.build_symbol_table();
+    const char * code = "x = 1 + 2;\n"
+                        "y = x + 3;\n"
+                        "z = x + y;";
+    Parser parser(code, false);
+    Node *tree = parser.parse();
+    Calculator calc(tree);	
+	calc.build_symbol_table(); 
+    assert(calc.symbol_table().size() == 3);
+    calc.print_symbol_table();
 	return 0;
 }
