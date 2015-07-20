@@ -1,11 +1,11 @@
 CXX = g++
 CXXFLAGS = -g  -std=c++11 -Wall#-I(include) -L(lib dir) -l(libname)
-PARSE_OBJ = parser.o lexer.o
-OBJ = calculator.o parser.o lexer.o 
+PARSE_OBJ = node.o parser.o lexer.o
+OBJ = calculator.o node.o parser.o lexer.o 
 
-all: main repl
+all: calc repl test
 
-main: main.cc $(OBJ) 
+calc: calc.cc $(OBJ) 
 	$(CXX) -o $@  $< $(OBJ) $(CXXFLAGS) 
 repl: repl.cc $(OBJ)
 	$(CXX) -o $@  $< $(OBJ) $(CXXFLAGS) 
@@ -24,8 +24,9 @@ symbol_table_test: symbol_table_test.cc $(OBJ)
 
 
 lexer.o: lexer.h utils.h
-parser.o: lexer.h utils.h node.h 
-calculator.o: calculator.h parser.h
+parser.o: lexer.h node.h utils.h 
+node.o: node.h utils.h
+calculator.o: calculator.h parser.h utils.h
 
 .PHONY: clean
 clean:

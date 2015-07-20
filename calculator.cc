@@ -7,30 +7,32 @@
 void Calculator::gen_symbol_table(Node *node) {
     switch (node->type()) {
         case NODE_NUMBER:
-            break;
+            return;
         case NODE_OP:
             gen_symbol_table((dynamic_cast<OpNode *>(node))->left());
             gen_symbol_table((dynamic_cast<OpNode *>(node))->right());
-            break;
+            return;
         case NODE_ID:
             if (get_symbol((dynamic_cast<IdNode *>(node)->value())) < 0) {
                 ERROR << "semantic error:" << dynamic_cast<IdNode *>(node)->value()
                       << " referenced before it assigned\n"; 
             }
-            break;
+            return;
         case NODE_ASSIGN: {
                 AssignNode * assign = dynamic_cast<AssignNode *>(node); 
                 IdNode * id = assign->id_node();
                 insert_symbol(id->value());
                 gen_symbol_table(assign->expr_node());
             }
-            break;
+            return;
         case NODE_STMTS: {
                 StmtsNode *stmts = dynamic_cast<StmtsNode *>(node); 
                 for (size_t i = 0; i < stmts->nodes().size(); i++) 
                     gen_symbol_table(stmts->nodes()[i]);
             }
-            break;
+            return;
+        default:
+            return;
     }
 }
 
@@ -71,6 +73,7 @@ int Calculator::evaluate(Node * node) {
                 default:
                     ERROR << "unknown op type " << op_node->op_type();
             }
+            return 0;
         }
         case NODE_ID: {
             IdNode * id_node = dynamic_cast<IdNode *>(node);
@@ -88,7 +91,6 @@ int Calculator::evaluate(Node * node) {
                 set_env(assign->id_node()->value(), x); 
                 return 0;
             }
-            break;
         case NODE_STMTS: {
                 StmtsNode *stmts = dynamic_cast<StmtsNode *>(node); 
                 for (size_t i = 0; i < stmts->nodes().size(); i++) 
@@ -96,4 +98,19 @@ int Calculator::evaluate(Node * node) {
                 return 0;
             }
     }
+    return 0;
 }
+
+void Calculator::compile(char *out_file) const{
+    assert(syntax_tree_ != NULL);
+    LOG << "compile calculate expression into TVM assembly code";
+    if (NULL == out_file) {
+        syntax_tree_->gen_code(stdout, symbol_table_);
+    } else {
+        FILE * fp = fopen(out_file, "w");
+        syntax_tree_->gen_code(fp, symbol_table_);
+        fclose(fp);
+    }
+    LOG << "compile Done";
+}
+

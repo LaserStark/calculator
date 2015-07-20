@@ -78,7 +78,7 @@ TokenType Lexer::get_token() {
         back_char(ch);
 		return TOKEN_NUMBER;
 	}
-	//g_token = ch;
+	token_ = ch;
 	//other
 	switch(ch) {
 		case '=':   return TOKEN_ASSIGN;

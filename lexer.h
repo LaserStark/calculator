@@ -26,7 +26,7 @@ public:
         if (is_file_) fclose(fp_);
     }
     TokenType get_token(); 
-    std::string token() { return token_; }
+    std::string token() const { return token_; }
     static std::string token_map(TokenType expect_type); 
 protected:
     char read_char(); 

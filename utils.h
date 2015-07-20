@@ -11,7 +11,7 @@ public:
     Message(const char *file, const char *func, int line, bool error = false): error_(error) {
         if (error) ss << "Error (";
         else ss << "Log (";
-        ss << file << ":" << func << "():" << line << ")\t";
+        ss << file << ":" << func << "():" << line << ") ";
     }
     ~Message() {
         printf("%s\n", ss.str().c_str());

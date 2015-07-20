@@ -8,8 +8,18 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <unordered_map>
 
 #include "lexer.h"
+
+/* gen_code: gen TVM(https://github.com/robin1001/tvm) assembly code.
+ * it's a RISC like assembly language implements most basic assembly 
+ * operations. for simplity, here only use 3 registers of TVM.
+ * r0, r1, r7
+ * 1. r0 keep all calc result in r0
+ * 2. r1 as ALU src register add r0, r1, r0
+ * 3. r7 as base address register, just like bp in X86
+ */
 
 typedef enum {
 	NODE_NUMBER,
@@ -19,12 +29,13 @@ typedef enum {
 	NODE_STMTS
 } NodeType;
 
-
+typedef std::unordered_map<std::string, int> Table; 
 
 class Node {
 public:
     Node(NodeType type): type_(type) {}
-    virtual NodeType type() const { return type_; }
+    virtual NodeType type() const{ return type_; }
+    virtual void gen_code(FILE *fp, const Table &symbol_table) const {}
 protected:
     NodeType type_;
 };
@@ -32,7 +43,10 @@ protected:
 class NumberNode: public Node {
 public:
     NumberNode(int value): Node(NODE_NUMBER), value_(value) {}
-	int value() { return value_; }
+	int value() const { return value_; }
+    void gen_code(FILE *fp, const Table &symbol_table) const {
+        fprintf(fp, "mov r0, %d\n", value_); 
+    }
 protected:
     int value_;
 };
@@ -41,11 +55,13 @@ class OpNode: public Node {
 public:
     OpNode(TokenType op, Node *left, Node *right): Node(NODE_OP), 
 		op_type_(op), left_(left), right_(right) {
-		assert(TOKEN_ADD == op_type_ || TOKEN_MINUS == op_type_ || TOKEN_MULTI == op_type_ || TOKEN_DEVI == op_type_);
+		assert(TOKEN_ADD == op_type_ || TOKEN_MINUS == op_type_ || \
+            TOKEN_MULTI == op_type_ || TOKEN_DEVI == op_type_);
     }
-    TokenType op_type() { return op_type_; }
-	Node *left() { return left_; }
-	Node *right() { return right_; }
+    TokenType op_type() const { return op_type_; }
+	Node *left() const { return left_; }
+	Node *right() const { return right_; }
+    void gen_code(FILE *fp, const Table &symbol_table) const;
 protected:
 	TokenType op_type_;
     Node *left_, *right_;
@@ -55,16 +71,30 @@ protected:
 class IdNode: public Node {
 public:
     IdNode(std::string value): Node(NODE_ID), value_(value) {}
-	std::string value() { return value_; }
+	std::string value() const { return value_; }
+    void gen_code(FILE *fp, const Table &symbol_table) const {
+        assert(symbol_table.find(value_) != symbol_table.end());     
+        int memory_addr = symbol_table.at(value_);
+        fprintf(fp, "mov r7, %d\n", memory_addr);
+        fprintf(fp, "ld r0, [r7]\n");
+    }
 protected:
-   std::string value_; 
+    std::string value_; 
 };
 
 class AssignNode: public Node {
 public:
     AssignNode(Node *id, Node *e): Node(NODE_ASSIGN), id_node_(id), expr_node_(e)  {}
-    IdNode *id_node() { return dynamic_cast<IdNode *>(id_node_); }
-    Node *expr_node() { return expr_node_; }
+    IdNode *id_node() const { return dynamic_cast<IdNode *>(id_node_); }
+    Node *expr_node() const { return expr_node_; }
+    void gen_code(FILE *fp, const Table &symbol_table) const {
+        expr_node_->gen_code(fp, symbol_table);
+        std::string symbol = dynamic_cast<IdNode *>(id_node_)->value();
+        assert(symbol_table.find(symbol) != symbol_table.end());     
+        int memory_addr = symbol_table.at(symbol);
+        fprintf(fp, "mov r7, %d\n", memory_addr);
+        fprintf(fp, "st r0, [r7]\n");
+    }
 protected:
     Node *id_node_;
     Node *expr_node_;
@@ -76,9 +106,14 @@ public:
 	void add_node(Node *node) {
 		node_vec_.push_back(node);
 	}
-	const std::vector<Node *> & nodes() {
+	const std::vector<Node *> & nodes() const {
 		return node_vec_;
 	}
+    void gen_code(FILE *fp, const Table &symbol_table) const {
+        for (size_t i = 0; i < node_vec_.size(); i++) {
+            node_vec_[i]->gen_code(fp, symbol_table);
+        }
+    }
 protected:
 	std::vector<Node *> node_vec_;
 };

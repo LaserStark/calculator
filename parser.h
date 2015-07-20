@@ -7,7 +7,7 @@
 
 class Parser {
 public:
-    Parser(const char *input, bool is_file): lexer_(input, is_file) {}
+    Parser(const char *input = "", bool is_file = true): lexer_(input, is_file) {}
     Node *parse();
 private: //recursive down funtions of parser
     Node *expr(); 
