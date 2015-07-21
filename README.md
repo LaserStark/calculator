@@ -31,9 +31,9 @@ variable after each calculator expression.
 type ./calc input_file [out_file] to run the Calculator Compiler, the out_file is 
 optional, it write middleware result to stdout when the out_file is not provided.
 (eg ./calc [example/test.calc](./example/test.calc) [example/test.tvm](./example/test.tvm)) 
-* run
+#### run
 ![run compiler](./img/run_compiler.png)
-* compile result
+#### compile result
 ![calc compiler](./img/compiler.png)
 
 
