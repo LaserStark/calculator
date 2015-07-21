@@ -11,6 +11,7 @@ void OpNode::gen_code(FILE *fp, const Table &symbol_table) const {
      * 3. gen right expr code, result in r0
      * 4. pop r1(just pop the value to r1 which pushed in step 2(r0);
      * 5. finish (left in r1, right in r0)
+     * in summary, just like stack based VM
      */
     left_->gen_code(fp, symbol_table); 
     fprintf(fp, "push r0\n");
