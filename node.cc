@@ -1,5 +1,9 @@
-#include "node.h"
+/* Calculator Interpreter & Compiler
+ * Author: robin1001
+ * Date: 2015-07-10
+ */
 
+#include "node.h"
 
 void OpNode::gen_code(FILE *fp, const Table &symbol_table) const {
     /* 1. left expr's result in r0 at first

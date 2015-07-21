@@ -1,3 +1,7 @@
+/* Calculator Interpreter & Compiler
+ * Author: robin1001
+ * Date: 2015-07-01
+ */
 #include <stdio.h>
 #include <assert.h>
 

@@ -1,3 +1,7 @@
+/* Calculator Interpreter & Compiler
+ * Author: robin1001
+ * Date: 2015-07-20
+ */
 #ifndef _CALCULATOR_H_
 #define _CALCULATOR_H_
 

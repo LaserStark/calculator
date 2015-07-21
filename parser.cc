@@ -1,7 +1,10 @@
+/* Calculator Interpreter & Compiler
+ * Author: robin1001
+ * Date: 2015-07-03
+ */
 #include <string>
 
 #include "parser.h"
-
 
 void Parser::match(TokenType expect_type) {
 	if (next_token_ == expect_type) {

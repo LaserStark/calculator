@@ -1,3 +1,7 @@
+/* Calculator Interpreter & Compiler
+ * Author: robin1001
+ * Date: 2015-07-01
+ */
 #ifndef	_LEXER_H_ 
 #define	_LEXER_H_ 
 

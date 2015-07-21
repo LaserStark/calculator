@@ -1,3 +1,7 @@
+/* Calculator Interpreter & Compiler
+ * Author: robin1001
+ * Date: 2015-07-03
+ */
 #include <stdio.h>
 
 #include "parser.h"

@@ -1,3 +1,7 @@
+/* Calculator Interpreter & Compiler
+ * Author: robin1001
+ * Date: 2015-07-20
+ */
 #ifndef _UNITS_H_
 #define _UNITS_H_
 
