@@ -40,6 +40,7 @@ public:
     Node(NodeType type): type_(type) {}
     virtual NodeType type() const{ return type_; }
     virtual int eval(Table *env) const { return 0; }
+    virtual void gen_symbol(Table *symbol_table) const {}
     virtual void gen_code(FILE *fp, const Table &symbol_table) const {}
 protected:
     NodeType type_;
@@ -68,6 +69,11 @@ public:
 	Node *left() const { return left_; }
 	Node *right() const { return right_; }
     int eval(Table *env) const; 
+
+    void gen_symbol(Table *symbol_table) const {
+        left_->gen_symbol(symbol_table);
+        right_->gen_symbol(symbol_table);
+    }
     void gen_code(FILE *fp, const Table &symbol_table) const;
 protected:
 	TokenType op_type_;
@@ -86,6 +92,11 @@ public:
         }
         return env->at(value_);
     }
+    void gen_symbol(Table *symbol_table) const {
+        if (symbol_table->find(value_) == symbol_table->end()) {
+            ERROR << "semantic error: " << value_ << " referenced before it assigned";
+        }
+    }
     void gen_code(FILE *fp, const Table &symbol_table) const {
         assert(symbol_table.find(value_) != symbol_table.end());     
         int memory_addr = symbol_table.at(value_);
@@ -99,12 +110,19 @@ protected:
 class AssignNode: public Node {
 public:
     AssignNode(Node *id, Node *e): Node(NODE_ASSIGN), id_node_(id), expr_node_(e)  {}
-    IdNode *id_node() const { return dynamic_cast<IdNode *>(id_node_); }
+    Node *id_node() const { return id_node_; }
     Node *expr_node() const { return expr_node_; }
     int eval(Table *env) const {
         int x = expr_node_->eval(env);
         (*env)[dynamic_cast<IdNode *>(id_node_)->value()] = x;
         return x;
+    }
+    void gen_symbol(Table *symbol_table) const {
+        expr_node_->gen_symbol(symbol_table);
+        std::string value = dynamic_cast<IdNode *>(id_node_)->value();
+        if (symbol_table->find(value) == symbol_table->end()) { // not in symbol table
+            symbol_table->insert(std::make_pair(value, symbol_table->size()));
+        }
     }
     void gen_code(FILE *fp, const Table &symbol_table) const {
         expr_node_->gen_code(fp, symbol_table);
@@ -125,7 +143,7 @@ public:
 	void add_node(Node *node) {
 		node_vec_.push_back(node);
 	}
-	const std::vector<Node *> & nodes() const {
+    const std::vector<Node *> & nodes() const {
 		return node_vec_;
 	}
     int eval(Table *env) const {
@@ -133,6 +151,11 @@ public:
             node_vec_[i]->eval(env);
         }
         return 0;
+    }
+    void gen_symbol(Table *symbol_table) const {
+        for (size_t i = 0; i < node_vec_.size(); i++) {
+            node_vec_[i]->gen_symbol(symbol_table);
+        }
     }
     void gen_code(FILE *fp, const Table &symbol_table) const {
         for (size_t i = 0; i < node_vec_.size(); i++) {

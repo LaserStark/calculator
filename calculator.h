@@ -17,9 +17,8 @@
 
 class Calculator {
 public:
-	Calculator(Node *tree = NULL): label_count_(0), syntax_tree_(tree) {}
-    Calculator(const char *input, bool is_file = true): label_count_(0), 
-        parser_(input, is_file) {
+	Calculator(Node *tree = NULL): syntax_tree_(tree) {}
+    Calculator(const char *input, bool is_file = true): parser_(input, is_file) {
         syntax_tree_ = parser_.parse();
         build_symbol_table();
     }
@@ -41,25 +40,8 @@ public:
 	const std::unordered_map<std::string, int> &symbol_table() const{ return symbol_table_; }
     void compile(char *out_file = NULL) const;
 protected:
-	//symbol table functions
-	void gen_symbol_table(Node *node);
-	void insert_symbol(std::string sym) {
-		if (symbol_table_.find(sym) == symbol_table_.end()) {
-			symbol_table_.insert(make_pair(sym, label_count_));
-			label_count_++;
-		}
-	}
-	//0 faied
-	int get_symbol(std::string sym) const {
-		if (symbol_table_.find(sym) == symbol_table_.end()) 
-			return -1;
-		return symbol_table_.at(sym);
-	}
-
-protected:
 	std::unordered_map<std::string, int> symbol_table_;
 	std::unordered_map<std::string, int> env_;// repl envoriment symbol value 
-	int label_count_;
 	Node * syntax_tree_;
     Parser parser_;
 };

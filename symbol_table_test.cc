@@ -4,6 +4,7 @@
  */
 #include <stdio.h>
 
+#include "utils.h"
 #include "calculator.h"
 
 int main() {
@@ -12,6 +13,7 @@ int main() {
                         "z = x + y;";
     Calculator calc(code, false);	
 	//calc.build_symbol_table(); 
+    LOG << calc.symbol_table().size();
     assert(calc.symbol_table().size() == 3);
     calc.print_symbol_table();
 	return 0;

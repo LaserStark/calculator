@@ -7,41 +7,9 @@
 #include "utils.h"
 #include "calculator.h"
 
-void Calculator::gen_symbol_table(Node *node) {
-    switch (node->type()) {
-        case NODE_NUMBER:
-            return;
-        case NODE_OP:
-            gen_symbol_table((dynamic_cast<OpNode *>(node))->left());
-            gen_symbol_table((dynamic_cast<OpNode *>(node))->right());
-            return;
-        case NODE_ID:
-            if (get_symbol((dynamic_cast<IdNode *>(node)->value())) < 0) {
-                ERROR << "semantic error:" << dynamic_cast<IdNode *>(node)->value()
-                      << " referenced before it assigned\n"; 
-            }
-            return;
-        case NODE_ASSIGN: {
-                AssignNode * assign = dynamic_cast<AssignNode *>(node); 
-                IdNode * id = assign->id_node();
-                insert_symbol(id->value());
-                gen_symbol_table(assign->expr_node());
-            }
-            return;
-        case NODE_STMTS: {
-                StmtsNode *stmts = dynamic_cast<StmtsNode *>(node); 
-                for (size_t i = 0; i < stmts->nodes().size(); i++) 
-                    gen_symbol_table(stmts->nodes()[i]);
-            }
-            return;
-        default:
-            return;
-    }
-}
-
 void Calculator::build_symbol_table() {
     assert(syntax_tree_ != NULL);
-    gen_symbol_table(syntax_tree_);
+    syntax_tree_->gen_symbol(&symbol_table_);
 }
 
 void Calculator::repl() {
