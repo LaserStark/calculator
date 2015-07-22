@@ -3,6 +3,7 @@
  * Date: 2015-07-10
  */
 
+#include "utils.h"
 #include "node.h"
 
 void OpNode::gen_code(FILE *fp, const Table &symbol_table) const {
@@ -34,3 +35,20 @@ void OpNode::gen_code(FILE *fp, const Table &symbol_table) const {
             return;
     }
 }
+
+int OpNode::eval(Table *env) const {
+    int x = left_->eval(env);
+    int y = right_->eval(env);
+    switch (op_type_) {
+        case TOKEN_ADD:   return x + y;    
+        case TOKEN_MINUS: return x - y;    
+        case TOKEN_MULTI: return x * y;    
+        case TOKEN_DEVI:  return x / y;    
+        default:
+            ERROR << "unknown op type " << op_type_;
+    }
+    return 0;
+}
+
+
+

@@ -10,6 +10,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "utils.h"
 #include "lexer.h"
 #include "parser.h"
 
@@ -54,20 +55,7 @@ protected:
 			return -1;
 		return symbol_table_.at(sym);
 	}
-    //evaluate
-    int evaluate(Node * node);
-    int get_env(std::string sym, bool *find) const { //get value from current env
-        if (env_.find(sym) != env_.end()) {
-            *find = true; 
-		    return env_.at(sym);
-        } else {
-            *find = false;
-            return 0;
-        }
-    }
-    void set_env(std::string sym, int value) {
-        env_[sym] = value;
-    }
+
 protected:
 	std::unordered_map<std::string, int> symbol_table_;
 	std::unordered_map<std::string, int> env_;// repl envoriment symbol value 

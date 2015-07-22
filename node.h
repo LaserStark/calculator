@@ -39,6 +39,7 @@ class Node {
 public:
     Node(NodeType type): type_(type) {}
     virtual NodeType type() const{ return type_; }
+    virtual int eval(Table *env) const { return 0; }
     virtual void gen_code(FILE *fp, const Table &symbol_table) const {}
 protected:
     NodeType type_;
@@ -48,6 +49,7 @@ class NumberNode: public Node {
 public:
     NumberNode(int value): Node(NODE_NUMBER), value_(value) {}
 	int value() const { return value_; }
+    int eval(Table *env) const { return value_; }
     void gen_code(FILE *fp, const Table &symbol_table) const {
         fprintf(fp, "mov r0, %d\n", value_); 
     }
@@ -65,6 +67,7 @@ public:
     TokenType op_type() const { return op_type_; }
 	Node *left() const { return left_; }
 	Node *right() const { return right_; }
+    int eval(Table *env) const; 
     void gen_code(FILE *fp, const Table &symbol_table) const;
 protected:
 	TokenType op_type_;
@@ -76,6 +79,13 @@ class IdNode: public Node {
 public:
     IdNode(std::string value): Node(NODE_ID), value_(value) {}
 	std::string value() const { return value_; }
+    int eval(Table *env) const {
+        if (env->find(value_) == env->end()) {
+            printf("undifined variable: %s\n", value_.c_str());
+            return 0;
+        }
+        return env->at(value_);
+    }
     void gen_code(FILE *fp, const Table &symbol_table) const {
         assert(symbol_table.find(value_) != symbol_table.end());     
         int memory_addr = symbol_table.at(value_);
@@ -91,6 +101,11 @@ public:
     AssignNode(Node *id, Node *e): Node(NODE_ASSIGN), id_node_(id), expr_node_(e)  {}
     IdNode *id_node() const { return dynamic_cast<IdNode *>(id_node_); }
     Node *expr_node() const { return expr_node_; }
+    int eval(Table *env) const {
+        int x = expr_node_->eval(env);
+        (*env)[dynamic_cast<IdNode *>(id_node_)->value()] = x;
+        return x;
+    }
     void gen_code(FILE *fp, const Table &symbol_table) const {
         expr_node_->gen_code(fp, symbol_table);
         std::string symbol = dynamic_cast<IdNode *>(id_node_)->value();
@@ -113,6 +128,12 @@ public:
 	const std::vector<Node *> & nodes() const {
 		return node_vec_;
 	}
+    int eval(Table *env) const {
+        for (size_t i = 0; i < node_vec_.size(); i++) {
+            node_vec_[i]->eval(env);
+        }
+        return 0;
+    }
     void gen_code(FILE *fp, const Table &symbol_table) const {
         for (size_t i = 0; i < node_vec_.size(); i++) {
             node_vec_[i]->gen_code(fp, symbol_table);

@@ -7,7 +7,6 @@
 #include "utils.h"
 #include "calculator.h"
 
-
 void Calculator::gen_symbol_table(Node *node) {
     switch (node->type()) {
         case NODE_NUMBER:
@@ -55,54 +54,10 @@ void Calculator::repl() {
             || strcmp(code_str, "q") == 0 )
             break;
         Node * tree = Parser(code_str, false).parse();
-        evaluate(tree);
+        tree->eval(&env_);
         //show all variable in env
         print_env(); 
     }
-}
-
-int Calculator::evaluate(Node * node) {
-    switch (node->type()) {
-        case NODE_NUMBER:
-            return dynamic_cast<NumberNode *>(node)->value();
-        case NODE_OP: {
-            OpNode *op_node = dynamic_cast<OpNode *>(node); 
-            int x = evaluate(op_node->left());
-            int y = evaluate(op_node->right());
-            switch (op_node->op_type()) {
-                case TOKEN_ADD:   return x + y;    
-                case TOKEN_MINUS: return x - y;    
-                case TOKEN_MULTI: return x * y;    
-                case TOKEN_DEVI:  return x / y;    
-                default:
-                    ERROR << "unknown op type " << op_node->op_type();
-            }
-            return 0;
-        }
-        case NODE_ID: {
-            IdNode * id_node = dynamic_cast<IdNode *>(node);
-            bool find = true;
-            int x = get_env(id_node->value(), &find);
-            if (find) return x;
-            else {
-                printf("undifined variable: %s\n", dynamic_cast<IdNode *>(node)->value().c_str());                 
-                return x;
-            }
-        }
-        case NODE_ASSIGN: {
-                AssignNode * assign = dynamic_cast<AssignNode *>(node); 
-                int x = evaluate(assign->expr_node());
-                set_env(assign->id_node()->value(), x); 
-                return 0;
-            }
-        case NODE_STMTS: {
-                StmtsNode *stmts = dynamic_cast<StmtsNode *>(node); 
-                for (size_t i = 0; i < stmts->nodes().size(); i++) 
-                    evaluate(stmts->nodes()[i]);
-                return 0;
-            }
-    }
-    return 0;
 }
 
 void Calculator::compile(char *out_file) const{
