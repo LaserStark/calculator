@@ -14,19 +14,19 @@
 #include "lexer.h"
 
 std::string Lexer::token_map(TokenType expect_type) {
-	switch (expect_type) {
-		case TOKEN_ID: return "ID";
-		case TOKEN_NUMBER: return "NUMBER";
-		case TOKEN_ASSIGN: return "=";
-		case TOKEN_ADD: return "+";
-		case TOKEN_MINUS: return "-";
-		case TOKEN_MULTI: return "*";
-		case TOKEN_DEVI: return "/";
-		case TOKEN_LEFT_PAREN: return "(";
-		case TOKEN_RIGHT_PAREN: return ")";
-		case TOKEN_SEMICOLON: return ";";
-		default: return "unexpected";
-	}
+    switch (expect_type) {
+        case TOKEN_ID: return "ID";
+        case TOKEN_NUMBER: return "NUMBER";
+        case TOKEN_ASSIGN: return "=";
+        case TOKEN_ADD: return "+";
+        case TOKEN_MINUS: return "-";
+        case TOKEN_MULTI: return "*";
+        case TOKEN_DEVI: return "/";
+        case TOKEN_LEFT_PAREN: return "(";
+        case TOKEN_RIGHT_PAREN: return ")";
+        case TOKEN_SEMICOLON: return ";";
+        default: return "unexpected";
+    }
 }
 
 char Lexer::read_char() {
@@ -59,7 +59,7 @@ TokenType Lexer::get_token() {
     //black tab
     while (' ' == ch || '\t' == ch || '\n' == ch) ch = read_char();
     //eof
-	if (ch == EOF) return TOKEN_EOI;
+    if (ch == EOF) return TOKEN_EOI;
     //id
     if (isalpha(ch)) {
         std::stringstream ss;
@@ -71,31 +71,31 @@ TokenType Lexer::get_token() {
         token_ = ss.str();
         return TOKEN_ID;
     }
-	//number
-	if (isdigit(ch)) {
+    //number
+    if (isdigit(ch)) {
         std::string num_str;
-		do {
-			num_str += ch;
-			ch = read_char();
-		} while (isdigit(ch));//bug 
-		token_ = num_str;
+        do {
+            num_str += ch;
+            ch = read_char();
+        } while (isdigit(ch));//bug 
+        token_ = num_str;
         back_char(ch);
-		return TOKEN_NUMBER;
-	}
-	token_ = ch;
-	//other
-	switch(ch) {
-		case '=':   return TOKEN_ASSIGN;
-		case '+': 	return TOKEN_ADD;
-		case '-': 	return TOKEN_MINUS;
-		case '*': 	return TOKEN_MULTI;
-		case '/': 	return TOKEN_DEVI;
-		case '(': 	return TOKEN_LEFT_PAREN;
-		case ')': 	return TOKEN_RIGHT_PAREN;
-		case ';': 	return TOKEN_SEMICOLON;
-	}
-	//unknown char 
+        return TOKEN_NUMBER;
+    }
+    token_ = ch;
+    //other
+    switch(ch) {
+        case '=':   return TOKEN_ASSIGN;
+        case '+':   return TOKEN_ADD;
+        case '-':   return TOKEN_MINUS;
+        case '*':   return TOKEN_MULTI;
+        case '/':   return TOKEN_DEVI;
+        case '(':   return TOKEN_LEFT_PAREN;
+        case ')':   return TOKEN_RIGHT_PAREN;
+        case ';':   return TOKEN_SEMICOLON;
+    }
+    //unknown char 
     ERROR << "lex error: unkonwn char " << ch;
-	return TOKEN_UNKNOWN;
+    return TOKEN_UNKNOWN;
 }
 

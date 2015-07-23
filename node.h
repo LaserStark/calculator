@@ -26,11 +26,11 @@
  */
 
 typedef enum {
-	NODE_NUMBER,
-	NODE_OP,
-	NODE_ID,
-	NODE_ASSIGN,
-	NODE_STMTS
+    NODE_NUMBER,
+    NODE_OP,
+    NODE_ID,
+    NODE_ASSIGN,
+    NODE_STMTS
 } NodeType;
 
 typedef std::unordered_map<std::string, int> Table; 
@@ -49,7 +49,7 @@ protected:
 class NumberNode: public Node {
 public:
     NumberNode(int value): Node(NODE_NUMBER), value_(value) {}
-	int value() const { return value_; }
+    int value() const { return value_; }
     int eval(Table *env) const { return value_; }
     void gen_code(FILE *fp, const Table &symbol_table) const {
         fprintf(fp, "mov r0, %d\n", value_); 
@@ -61,13 +61,13 @@ protected:
 class OpNode: public Node {
 public:
     OpNode(TokenType op, Node *left, Node *right): Node(NODE_OP), 
-		op_type_(op), left_(left), right_(right) {
-		assert(TOKEN_ADD == op_type_ || TOKEN_MINUS == op_type_ || \
+        op_type_(op), left_(left), right_(right) {
+        assert(TOKEN_ADD == op_type_ || TOKEN_MINUS == op_type_ || \
             TOKEN_MULTI == op_type_ || TOKEN_DEVI == op_type_);
     }
     TokenType op_type() const { return op_type_; }
-	Node *left() const { return left_; }
-	Node *right() const { return right_; }
+    Node *left() const { return left_; }
+    Node *right() const { return right_; }
     int eval(Table *env) const; 
 
     void gen_symbol(Table *symbol_table) const {
@@ -76,7 +76,7 @@ public:
     }
     void gen_code(FILE *fp, const Table &symbol_table) const;
 protected:
-	TokenType op_type_;
+    TokenType op_type_;
     Node *left_, *right_;
 };
 
@@ -84,7 +84,7 @@ protected:
 class IdNode: public Node {
 public:
     IdNode(std::string value): Node(NODE_ID), value_(value) {}
-	std::string value() const { return value_; }
+    std::string value() const { return value_; }
     int eval(Table *env) const {
         if (env->find(value_) == env->end()) {
             printf("undifined variable: %s\n", value_.c_str());
@@ -139,13 +139,13 @@ protected:
 
 class StmtsNode: public Node {
 public:
-	StmtsNode(): Node(NODE_STMTS) {}
-	void add_node(Node *node) {
-		node_vec_.push_back(node);
-	}
+    StmtsNode(): Node(NODE_STMTS) {}
+    void add_node(Node *node) {
+        node_vec_.push_back(node);
+    }
     const std::vector<Node *> & nodes() const {
-		return node_vec_;
-	}
+        return node_vec_;
+    }
     int eval(Table *env) const {
         for (size_t i = 0; i < node_vec_.size(); i++) {
             node_vec_[i]->eval(env);
@@ -163,7 +163,7 @@ public:
         }
     }
 protected:
-	std::vector<Node *> node_vec_;
+    std::vector<Node *> node_vec_;
 };
 
 #endif

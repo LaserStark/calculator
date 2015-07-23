@@ -21,5 +21,5 @@ void test_parser() {
 
 int main() {
     test_parser();
-	return 0;
+    return 0;
 }

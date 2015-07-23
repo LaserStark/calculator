@@ -7,7 +7,7 @@
 #include "calculator.h"
 
 int main() {
-    Calculator calc;	
+    Calculator calc;    
     calc.repl();
-	return 0;
+    return 0;
 }
